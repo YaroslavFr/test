@@ -188,17 +188,21 @@ add_action( 'widgets_init', 'test_widgets_init' );
 /**
  * Enqueue scripts and styles.
  */
-function test_scripts() {
-	wp_enqueue_style( 'test-style', get_stylesheet_uri(), array(), _S_VERSION );
-	wp_style_add_data( 'test-style', 'rtl', 'replace' );
+function betguide_scripts() {
+	wp_enqueue_style( 'betguide-style', get_stylesheet_uri(), array(), _S_VERSION );
+	wp_style_add_data( 'betguide-style', 'rtl', 'replace' );
 
-	wp_enqueue_script( 'test-navigation', get_template_directory_uri() . '/js/navigation.js', array(), _S_VERSION, true );
+	wp_enqueue_script( 'betguide-navigation', get_template_directory_uri() . '/js/navigation.js', array(), _S_VERSION, true );
+	wp_enqueue_script( 'app', get_template_directory_uri() . '/js/app.js', array(), _S_VERSION, true );
+	wp_enqueue_script( 'app-min', get_template_directory_uri() . '/js/app.min.js', array(), _S_VERSION, true );
+	wp_enqueue_script( 'easy-toggler', get_template_directory_uri() . '/js/easy-toggler.min.js', array(), _S_VERSION, true );
+	wp_enqueue_script( 'promoSlider', get_template_directory_uri() . '/js/components/promoSlider.js', array(), _S_VERSION, true );
 
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
 	}
 }
-add_action( 'wp_enqueue_scripts', 'test_scripts' );
+add_action( 'wp_enqueue_scripts', 'betguide_scripts' );
 
 /**
  * Implement the Custom Header feature.
@@ -228,4 +232,30 @@ if ( defined( 'JETPACK__VERSION' ) ) {
 }
 
 // Load TGM
-require get_template_directory() . '/tgm/test.php';
+require get_template_directory() . '/tgm/betguide.php';
+
+// Изменяем атрибут class у тега li
+add_filter( 'nav_menu_css_class', 'filter_nav_menu_css_classes', 10, 4 );
+function filter_nav_menu_css_classes( $classes, $item, $args, $depth ) {
+	if ( $args->theme_location === 'menu-1' ) {
+		$classes = [
+			'navbar__item'
+		];
+
+		if ( $item->current ) {
+			$classes[] = 'navbar__item--current';
+		}
+	}
+
+	return $classes;
+}
+/**
+ * Allow SVG files in Media Library.
+ */
+function extra_mime_types( $mimes ) {
+
+	$mimes['svg'] = 'image/svg+xml';
+  
+	return $mimes;
+  }
+add_filter( 'upload_mimes', 'extra_mime_types' );
